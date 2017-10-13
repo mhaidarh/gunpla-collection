@@ -1,7 +1,19 @@
 const express = require("express")
 const app = express()
+const bodyParser = require("body-parser")
 
-const gunplaCollection = [
+app.use(bodyParser.json())
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  )
+  next()
+})
+
+let gunplaCollection = [
   {
     id: 0,
     model: "DUMMY",
@@ -28,17 +40,20 @@ const gunplaCollection = [
   }
 ]
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  )
-  next()
-})
+const addItemToCollection = (collection, item) => {
+  collection.push(item)
+  return collection // updated collection
+}
 
 app.get("/", (req, res) => {
   res.send(gunplaCollection)
+})
+
+app.post("/", (req, res) => {
+  const newItem = req.body
+  const newCollection = addItemToCollection(gunplaCollection, newItem) // store updated collection to new variable
+  gunplaCollection = newCollection // replace current collection with the new collection
+  res.send(gunplaCollection) // send the updated collection
 })
 
 app.listen(3000, () => {
